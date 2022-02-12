@@ -69,15 +69,13 @@ jobs:
       - name: Upload ZIP file to S3
         run: aws s3 cp api.zip s3://${{ secrets.S3_BUCKET }}/api.zip
         env:
-          AWS_SECRET_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       
       - name: Deploy new lambda function
         run: aws lambda update-function-code --function-name serverless-fastapi --s3-bucket ${{ secrets.S3_BUCKET }} --s3-key api.zip
         env:
-          AWS_SECRET_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_SECRET_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          AWS_BUCKET: ${{ secrets.S3_BUCKET }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
