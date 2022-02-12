@@ -3,7 +3,7 @@ name: fastapi CI/CD
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   CI:
@@ -17,34 +17,33 @@ jobs:
           python-version: "3.8"
       
       - name: Install Poetry
-        run: pip3 install poetry
+        run: pip3 install poetry && poetry config virtualenvs.in-project true
       
       - name: Virtual ENV
-        user: actions/cache@v2
+        uses: actions/cache@v2
         id: cache-venv
         with:
           path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles("**/pyproject.toml") }}
-          restore-keys:
-            - ${{ runner.os }}-venv-
+          key: ${{ runner.os }}-venv-${{ hashFiles('**/pyproject.toml') }}
+          restore-keys: ${{ runner.os }}-venv-
         
       - name: Instal dependencies
-        run: poetry install
+        run: poetry install -v
         if: steps.cache-venv.outputs.cache-hit != 'true'
       
       - name: Run tests
-        run: poetry shell && pytest tests/
+        run: poetry run pytest
       
-      - name: Create archve of dependencies
+      - name: Create archive of dependencies
         run: 
-          cd ./.venv/lib/python3.8/site-packages/
-          zip -r9 ../../../../api.zip
+          cd ./.venv/lib/python3.8/site-packages &&
+          zip -r9 ../../../../api.zip .
       
       - name: Add api files to ZIP file
         run: cd ./api && zip -g ../api.zip -r .
       
       - name: Upload ZIP file to S3
-        user: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v2
         with:
           name: api
           path: api.zip
